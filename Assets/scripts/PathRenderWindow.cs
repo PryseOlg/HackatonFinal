@@ -23,21 +23,30 @@ public class PathRenderWindow : EditorWindow
     {
         var obj = new SerializedObject(this);
 
-        if (GUILayout.Button("MakePoints"))
+        if (GUILayout.Button("Recognize path", new GUIStyle(EditorStyles.miniButton) { 
+            font = EditorStyles.boldFont, 
+            fontSize = 17, 
+            fixedHeight = 30, 
+            margin = new(5,5,5,5) 
+        }))
             if (image != null)
                 MakePoints();
 
-        EditorGUI.indentLevel++;
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos, false, true);
+        EditorGUI.indentLevel++;
         EditorGUILayout.Space();
 
         EditorGUILayout.PropertyField(obj.FindProperty("image"), true);
-        EditorGUILayout.PropertyField(obj.FindProperty("pointPrefab"), true);
+        if (image == null)
+            EditorGUILayout.HelpBox("Image required", MessageType.Warning);
         EditorGUILayout.PropertyField(obj.FindProperty("spriteRenderer"), true);
-        EditorGUILayout.PropertyField(obj.FindProperty("lineRenderer"), true);
+        EditorGUILayout.Space();
+        EditorGUILayout.PropertyField(obj.FindProperty("pointPrefab"), true);
         EditorGUILayout.PropertyField(obj.FindProperty("pointHolder"), true);
+        EditorGUILayout.Space();
+        EditorGUILayout.PropertyField(obj.FindProperty("lineRenderer"), true);
+        EditorGUILayout.Space();
 
-        var pointCount = points.Count;
         EditorGUI.BeginChangeCheck();
         EditorGUILayout.PropertyField(obj.FindProperty("points"), true);
 
@@ -45,7 +54,7 @@ public class PathRenderWindow : EditorWindow
 
         obj.ApplyModifiedProperties();
 
-        if (pointCount != points.Count || EditorGUI.EndChangeCheck())
+        if (EditorGUI.EndChangeCheck())
             OnPointsChanged();
 
         if (spriteRenderer != null && spriteRenderer.sprite != image)
@@ -100,14 +109,11 @@ public class PathRenderWindow : EditorWindow
 
     private void MakePoints()
     {
-        /*for (int i = 0; i < 3; i++)
-            points.Add(new Vector2(
-                Random.Range(image.bounds.min.x, image.bounds.max.x), 
-                Random.Range(image.bounds.min.y, image.bounds.max.y))
-            );*/
-
-        
-        points = ImageUploader.UploadImage(image.texture);
+        var scale = new Vector2(image.bounds.size.x / image.rect.width, image.bounds.size.y / image.rect.height);
+        points = Enumerable.Range(0, 4).Select(i => new Vector2(Random.Range(0, image.rect.width), Random.Range(0, image.rect.height)))//ImageUploader.UploadImage(image.texture)
+            .Select(p => new Vector2(p.x * scale.x, p.y * scale.y) - 
+                new Vector2(image.bounds.size.x/ 2, image.bounds.size.y / 2))
+            .ToList();
         OnPointsChanged();
     }
 }

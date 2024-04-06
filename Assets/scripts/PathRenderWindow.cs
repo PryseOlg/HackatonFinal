@@ -10,7 +10,7 @@ public class PathRenderWindow : EditorWindow
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private Transform pointHolder;
-    [SerializeField] private List<Vector2> points;
+    [SerializeField] private List<Vector2> points = new();
 
     [MenuItem("Window/PathRender")]
     public static void ShowWindow()
@@ -100,12 +100,14 @@ public class PathRenderWindow : EditorWindow
 
     private void MakePoints()
     {
-        for (int i = 0; i < 3; i++)
+        /*for (int i = 0; i < 3; i++)
             points.Add(new Vector2(
                 Random.Range(image.bounds.min.x, image.bounds.max.x), 
                 Random.Range(image.bounds.min.y, image.bounds.max.y))
-            );
+            );*/
 
+        
+        points = ImageUploader.UploadImage(image.texture);
         OnPointsChanged();
     }
 }

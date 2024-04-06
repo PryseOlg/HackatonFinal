@@ -25,20 +25,37 @@ public class CoordinateResponse
 
 public static class ImageUploader
 {
+    private static byte[] GetBytes(Texture2D image)
+    {
+        Texture2D savedTexture = image;
+        Texture2D newTexture = new Texture2D(savedTexture.width, savedTexture.height, TextureFormat.ARGB32, false);
+
+        newTexture.SetPixels(0, 0, savedTexture.width, savedTexture.height, savedTexture.GetPixels());
+        newTexture.Apply();
+        return newTexture.EncodeToPNG();
+    }
+
     public static List<Vector2> UploadImage(Texture2D image)
     {
-        byte[] imageBytes = image.EncodeToPNG();
-        UnityWebRequest request = UnityWebRequest.PostWwwForm("http://localhost/uploadfile", "POST");
-        request.uploadHandler = new UploadHandlerRaw(imageBytes);
-        request.uploadHandler.contentType = "image/png";
+        byte[] imageBytes = GetBytes(image);
+        WWWForm form = new WWWForm();
+        form.AddBinaryData("file", imageBytes, "image.png", "image/png");
+        UnityWebRequest request = UnityWebRequest.Post("http://localhost/uploadfile", form);
+ 
         
         // Отправляем запрос синхронно
         request.SendWebRequest();
 
         // Проверяем результат запроса
+        var time = DateTime.Now;
+
+        while (request.result == UnityWebRequest.Result.InProgress && (DateTime.Now - time).Seconds < 10)
+        {
+            
+        }
         if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("Error uploading image: " + request.error);
+            Debug.LogError("Error uploading image: " + request.result);
         }
         else
         {

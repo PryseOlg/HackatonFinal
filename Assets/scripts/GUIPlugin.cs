@@ -12,15 +12,15 @@ public class GUIPlugin : EditorWindow
     }
 
     void OnGUI ()
+    {
+        GUILayout.Label("This is a label.", EditorStyles.boldLabel);
+
+        myString = EditorGUILayout.TextField("Name", myString);
+
+        if (GUILayout.Button("Press me"))
         {
-            GUILayout.Label("This is a label.", EditorStyles.boldLabel);
-
-            myString = EditorGUILayout.TextField("Name", myString);
-
-            if (GUILayout.Button("Press me"))
-            {
-                Debug.Log ("Button was pressed");
-            }
+            Debug.Log ("Button was pressed");
         }
+    }
     
 }

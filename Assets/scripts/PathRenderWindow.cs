@@ -62,9 +62,9 @@ public class PathRenderWindow : EditorWindow
         var hasChanged = false;
         if (pointHolder != null)
             for (int i = 0; i < System.Math.Min(points.Count, pointHolder.childCount); i++)
-                if (pointHolder.GetChild(i).transform.localPosition != new Vector3(points[i].x, points[i].y))
+                if (pointHolder.GetChild(i).transform.localPosition != new Vector3(points[i].x, points[i].y)) // Позиция объекта не равна позиции точки. Проверка для смещения объекта
                 {
-                    points[i] = pointHolder.GetChild(i).transform.localPosition;
+                    points[i] = pointHolder.GetChild(i).transform.localPosition; // Позицию точки меняем на позицию объекта
                     hasChanged = true;
                 }
 
@@ -79,13 +79,13 @@ public class PathRenderWindow : EditorWindow
     {
         if (pointHolder != null && pointPrefab != null)
         {
-            for (int i = pointHolder.childCount; i < points.Count; i++)
+            for (int i = pointHolder.childCount; i < points.Count; i++) // Если объектов меньше чем точек, то создаём объекты
                 Instantiate(pointPrefab, pointHolder);
 
-            for (int i = pointHolder.childCount; i > points.Count; i--)
+            for (int i = pointHolder.childCount; i > points.Count; i--) // Если объектов больше чем точек, то мы удаляем объекты
                 DestroyImmediate(pointHolder.GetChild(i - 1).gameObject);
 
-            for (int i = 0; i < points.Count; i++)
+            for (int i = 0; i < points.Count; i++) // Задаём одинаковые коррдинаты от точки для объекта
                 pointHolder.GetChild(i).transform.localPosition = points[i];
         }
 

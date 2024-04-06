@@ -27,7 +27,7 @@ public class ImageUploader : MonoBehaviour
     public void UploadImage(Texture2D image)
     {
         byte[] imageBytes = image.EncodeToPNG();
-        UnityWebRequest request = UnityWebRequest.PostWwwForm("your_api_endpoint", "POST");
+        UnityWebRequest request = UnityWebRequest.PostWwwForm("http://localhost/uploadfile", "POST");
         request.uploadHandler = new UploadHandlerRaw(imageBytes);
         request.uploadHandler.contentType = "image/png";
         StartCoroutine(SendRequest(request));

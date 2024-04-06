@@ -13,7 +13,8 @@ public class GUIPlugin : EditorWindow
     {
         GetWindow<GUIPlugin>("GUI");
     }
-
+    
+    
     void OnGUI ()
     {
         GUILayout.Label("This is a label.", EditorStyles.boldLabel);

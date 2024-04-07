@@ -1,8 +1,7 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using System.Collections.Generic;
 using System.Linq;
 
 [System.Serializable]
@@ -40,46 +39,40 @@ public static class ImageUploader
         byte[] imageBytes = GetBytes(image);
         WWWForm form = new WWWForm();
         form.AddBinaryData("file", imageBytes, "image.png", "image/png");
-        UnityWebRequest request = UnityWebRequest.Post("http://localhost/uploadfile", form);
- 
-        
+        UnityWebRequest request = UnityWebRequest.Post("http://localhost/upload-file", form);
+     
         // Отправляем запрос синхронно
         request.SendWebRequest();
 
         // Проверяем результат запроса
         var time = DateTime.Now;
 
-        while (request.result == UnityWebRequest.Result.InProgress && (DateTime.Now - time).Seconds < 10)
+        while (!request.isDone && (DateTime.Now - time).Seconds < 10)
         {
             
         }
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("Error uploading image: " + request.result);
+            return new List<Vector2>();
+        }
+        
+        string jsonResponse = request.downloadHandler.text;
+        CoordinateResponse response = JsonUtility.FromJson<CoordinateResponse>(jsonResponse);
+        
+        if (response != null && response.coordinates != null)
+        {
+            foreach (Coordinate coordinate in response.coordinates)
+            {
+                Vector2 vector2 = coordinate.ToVector2();
+                Debug.Log("Vector2: " + vector2);
+            }
+            return response.coordinates.Select(c => c.ToVector2()).ToList();
         }
         else
         {
-            string jsonResponse = request.downloadHandler.text;
-            CoordinateResponse response = JsonUtility.FromJson<CoordinateResponse>(jsonResponse);
-            
-            if (response != null && response.coordinates != null)
-            {
-                foreach (Coordinate coordinate in response.coordinates)
-                {
-                    Vector2 vector2 = coordinate.ToVector2();
-                    Debug.Log("Vector2: " + vector2);
-
-                }
-                return response.coordinates.Select(c => c.ToVector2()).ToList();
-                
-            }
-            else
-            {
-                Debug.LogError("Error parsing coordinate response.");
-                
-            }
+            Debug.LogError("Error parsing coordinate response.");
+            return new List<Vector2>();
         }
-        return new();
     }
-    
 }

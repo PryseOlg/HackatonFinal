@@ -11,6 +11,7 @@ public class PathRenderWindow : EditorWindow
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private Transform pointHolder;
     [SerializeField] private List<Vector2> points = new();
+    [SerializeField] private int maxPoints = 30; // Параметр для ограничения количества точек
 
     [MenuItem("Window/PathRender")]
     public static void ShowWindow()
@@ -19,18 +20,22 @@ public class PathRenderWindow : EditorWindow
     }
 
     private Vector2 scrollPos;
+
     void OnGUI()
     {
         var obj = new SerializedObject(this);
 
-        if (GUILayout.Button("Recognize path", new GUIStyle(EditorStyles.miniButton) { 
-            font = EditorStyles.boldFont, 
-            fontSize = 17, 
-            fixedHeight = 30, 
-            margin = new(5,5,5,5) 
+        if (GUILayout.Button("Recognize path", new GUIStyle(EditorStyles.miniButton)
+        {
+            font = EditorStyles.boldFont,
+            fontSize = 17,
+            fixedHeight = 30,
+            margin = new(5, 5, 5, 5)
         }))
+        {
             if (image != null)
                 MakePoints();
+        }
 
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos, false, true);
         EditorGUI.indentLevel++;
@@ -46,6 +51,9 @@ public class PathRenderWindow : EditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.PropertyField(obj.FindProperty("lineRenderer"), true);
         EditorGUILayout.Space();
+        
+        // Добавляем поле для ввода числа точек
+        maxPoints = EditorGUILayout.IntField("Max Points", maxPoints);
 
         EditorGUI.BeginChangeCheck();
         EditorGUILayout.PropertyField(obj.FindProperty("points"), true);
@@ -110,10 +118,27 @@ public class PathRenderWindow : EditorWindow
     private void MakePoints()
     {
         var scale = new Vector2(image.bounds.size.x / image.rect.width, image.bounds.size.y / image.rect.height);
-        points = Enumerable.Range(0, 4).Select(i => new Vector2(Random.Range(0, image.rect.width), Random.Range(0, image.rect.height)))//ImageUploader.UploadImage(image.texture)
-            .Select(p => new Vector2(p.x * scale.x, p.y * scale.y) - 
-                new Vector2(image.bounds.size.x/ 2, image.bounds.size.y / 2))
+        var uploadedPoints = ImageUploader.UploadImage(image.texture)
+            .Select(p => new Vector2(p.x * scale.x, (image.rect.height - p.y) * scale.y) -
+                         new Vector2(image.bounds.size.x / 2, image.bounds.size.y / 2))
             .ToList();
+
+        // Ограничиваем количество точек до значения из поля ввода
+        if (uploadedPoints.Count > maxPoints)
+        {
+            var step = (float)(uploadedPoints.Count - 1) / (maxPoints - 1);
+            points = new List<Vector2>();
+            for (int i = 0; i < maxPoints; i++)
+            {
+                var index = Mathf.RoundToInt(i * step);
+                points.Add(uploadedPoints[index]);
+            }
+        }
+        else
+        {
+            points = uploadedPoints;
+        }
+
         OnPointsChanged();
     }
 }

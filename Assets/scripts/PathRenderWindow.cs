@@ -12,6 +12,8 @@ public class PathRenderWindow : EditorWindow
     [SerializeField] private Transform pointHolder;
     [SerializeField] private List<Vector2> points = new();
     [SerializeField] private int maxPoints = 30; // Параметр для ограничения количества точек
+    [SerializeField] private PathData pathData;
+
 
     [MenuItem("Window/PathRender")]
     public static void ShowWindow()
@@ -50,6 +52,13 @@ public class PathRenderWindow : EditorWindow
         EditorGUILayout.PropertyField(obj.FindProperty("pointHolder"), true);
         EditorGUILayout.Space();
         EditorGUILayout.PropertyField(obj.FindProperty("lineRenderer"), true);
+        EditorGUILayout.Space();
+        EditorGUILayout.PropertyField(obj.FindProperty("pathData"), true);
+        if (pathData != null && GUILayout.Button("Apply from PathData"))
+        {
+            points = pathData.points;
+            OnPointsChanged();
+        }
         EditorGUILayout.Space();
         
         // Добавляем поле для ввода числа точек
@@ -112,6 +121,11 @@ public class PathRenderWindow : EditorWindow
             lineRenderer.positionCount = points.Count;
 
             lineRenderer.SetPositions(points.Select(p => (Vector3)p).ToArray());
+        }
+
+        if (pathData != null)
+        {
+            pathData.points = points;
         }
     }
 

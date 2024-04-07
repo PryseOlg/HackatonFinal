@@ -80,12 +80,23 @@ public class PathRenderWindow : EditorWindow
 
     private void Update()
     {
-        CheckPointsTransformChange();
+        if (pointHolder != null)
+            CheckPointsTransformChange();
     }
 
-    private void CheckPointsTransformChange(bool fromGui = false)
+    private void CheckPointsTransformChange()
     {
         var hasChanged = false;
+
+        if (pointHolder.childCount != points.Count)
+            hasChanged = true;
+
+        for (int i = points.Count; i < pointHolder.childCount; i++)
+            points.Add(pointHolder.GetChild(i).transform.localPosition);
+
+        for (int i = points.Count; i > pointHolder.childCount; i--)
+            points.RemoveAt(i - 1);
+        
         if (pointHolder != null)
             for (int i = 0; i < System.Math.Min(points.Count, pointHolder.childCount); i++)
                 if (pointHolder.GetChild(i).transform.localPosition != new Vector3(points[i].x, points[i].y))

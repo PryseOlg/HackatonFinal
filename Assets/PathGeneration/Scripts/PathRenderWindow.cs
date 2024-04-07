@@ -39,9 +39,8 @@ public class PathRenderWindow : EditorWindow
                 MakePoints();
         }
 
-        scrollPos = EditorGUILayout.BeginScrollView(scrollPos, false, true);
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos, false, false);
         EditorGUI.indentLevel++;
-        EditorGUILayout.BeginVertical(GUILayout.Width(EditorGUIUtility.currentViewWidth - 12));
         EditorGUILayout.Space();
 
         EditorGUILayout.PropertyField(obj.FindProperty("image"), true);
@@ -68,7 +67,6 @@ public class PathRenderWindow : EditorWindow
         EditorGUI.BeginChangeCheck();
         EditorGUILayout.PropertyField(obj.FindProperty("points"), true);
 
-        EditorGUILayout.EndVertical();
         EditorGUI.indentLevel--;
         EditorGUILayout.EndScrollView();
 
